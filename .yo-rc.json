@@ -42,7 +42,9 @@
     "jwtSecretKey": "NWM2YTg0MDY3MGFmZjExZTEwMjAzNDkzMGQ3NGFlYjE4YmE5NDI2MGVlNTA0ZGUzM2FkMmY4ZTk5MDkzYjg3Mjk5OTMzODU0ZmM3NzMyYzA5OWQzZjYwNzViYjU4YmE4MmVkYjJmNzBlMzk3MmZmMjIxY2Q4NTYxMjUyODQ2ZTc=",
     "clientTheme": "none",
     "clientThemeVariant": "",
-    "reactive": false
+    "reactive": false,
+    "entities": ["Innkeeper", "SharedDinner"],
+    "lastLiquibaseTimestamp": 1618331794000
   },
   "git-provider": "GitHub",
   "git-company": "Dado278",

@@ -48,6 +48,9 @@ public class CacheConfiguration {
             createCache(cm, it.davide.sweethome.domain.User.class.getName());
             createCache(cm, it.davide.sweethome.domain.Authority.class.getName());
             createCache(cm, it.davide.sweethome.domain.User.class.getName() + ".authorities");
+            createCache(cm, it.davide.sweethome.domain.Innkeeper.class.getName());
+            createCache(cm, it.davide.sweethome.domain.Innkeeper.class.getName() + ".sharedDinners");
+            createCache(cm, it.davide.sweethome.domain.SharedDinner.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }
