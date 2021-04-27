@@ -1,26 +1,37 @@
 package it.davide.sweethome.web.rest;
 
-import it.davide.sweethome.domain.Innkeeper;
-import it.davide.sweethome.repository.InnkeeperRepository;
-import it.davide.sweethome.service.InnkeeperService;
-import it.davide.sweethome.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import it.davide.sweethome.domain.Innkeeper;
+import it.davide.sweethome.repository.InnkeeperRepository;
+import it.davide.sweethome.service.InnkeeperService;
+import it.davide.sweethome.web.rest.errors.BadRequestAlertException;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -150,9 +161,10 @@ public class InnkeeperResource {
         log.debug("REST request to get a page of Innkeepers");
         Page<Innkeeper> page = innkeeperService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        List<Innkeeper> body = page.getContent();
-        String bodyNamed = "{innkeepers:" + body + "}";
+
+        String bodyNamed = creaJSONInnkeeper(page.getContent());
         return ResponseEntity.ok().headers(headers).body(bodyNamed);
+        
 //        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -184,4 +196,53 @@ public class InnkeeperResource {
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
+    
+    
+    private String creaJSONInnkeeper(List<Innkeeper> innkeeperList) {
+		
+		String jsonString = " ";
+		
+		jsonString += "{\""+"user"+"\": [";
+		// ciclo per ogni elemento {...}, {...}, ...
+		if ( innkeeperList!=null ) {
+
+			for (Iterator<Innkeeper> iter = innkeeperList.iterator(); iter.hasNext();) {
+				Innkeeper innkeeper = iter.next();
+				jsonString += " { ";
+				jsonString += "\"id\": \"" + innkeeper.getId() + "\", ";
+				jsonString += "\"createDate\": \"" + innkeeper.getCreateDate().toString() + "\", "; 
+				jsonString += "\"updateDae\": \"" + innkeeper.getUpdateDate().toString() + "\", "; 
+				jsonString += "\"nickname\": \"" + formatString(innkeeper.getNickname()) + "\", "; 
+				jsonString += "\"avatarImageBlob\": \"" + innkeeper.getAvatarImageBlob() + "\", "; 
+				jsonString += "\"avatarImageBlobContentType\": \"" + formatString(innkeeper.getAvatarImageBlobContentType()) + "\", ";
+				jsonString += "\"avatarTextBlob\": \"" + formatString(innkeeper.getAvatarTextBlob()) + "\", "; 
+				jsonString += "\"freshman\": \"" + innkeeper.getFreshman() + "\", "; 
+				jsonString += "\"phoneNumber\": \"" + formatString(innkeeper.getPhoneNumber()) + "\", ";
+				jsonString += "\"email\": \"" + formatString(innkeeper.getEmail()) + "\", ";
+				jsonString += "\"slogan\": \"" + formatString(innkeeper.getSlogan()) + "\", "; 
+				jsonString += "\"description\": \"" + formatString(innkeeper.getDescription()) + "\", ";
+				jsonString += "\"latitude\": \"" + formatString(innkeeper.getLatitude()) + "\", "; 
+				jsonString += "\"longitude\": \"" + formatString(innkeeper.getLongitude()) + "\", ";
+				jsonString += "\"address\": \"" + formatString(innkeeper.getAddress()) + "\", ";
+				jsonString += "\"gender\": \"" + formatString(innkeeper.getGender().name()) + "\", "; 
+				jsonString += "\"services\": \"" + formatString(innkeeper.getServices()) + "\", ";
+				jsonString += "\"homepage\": \"" + formatString(innkeeper.getHomePage()) + "\", ";
+				jsonString += "\"internalUser\": \"" + formatString("") + "\", ";
+				jsonString += "\"sharedDinners\": \"" + formatString("") + "\" ";
+				jsonString += " } ";
+				if ( iter.hasNext() ) {
+					jsonString += " , ";
+				}
+			}
+		}
+		jsonString += " ] } ";
+
+		return jsonString;
+	 }
+    
+    private String formatString(String stringa) {
+
+		return stringa!=null?stringa:"";
+	}
+    
 }
