@@ -202,7 +202,7 @@ public class InnkeeperResource {
 		
 		String jsonString = " ";
 		
-		jsonString += "{\""+"user"+"\": [";
+		jsonString += "{\""+"innkeepers"+"\": [";
 		// ciclo per ogni elemento {...}, {...}, ...
 		if ( innkeeperList!=null ) {
 
@@ -213,7 +213,7 @@ public class InnkeeperResource {
 				jsonString += "\"createDate\": \"" + innkeeper.getCreateDate().toString() + "\", "; 
 				jsonString += "\"updateDae\": \"" + innkeeper.getUpdateDate().toString() + "\", "; 
 				jsonString += "\"nickname\": \"" + formatString(innkeeper.getNickname()) + "\", "; 
-				jsonString += "\"avatarImageBlob\": \"" + innkeeper.getAvatarImageBlob() + "\", "; 
+				jsonString += "\"avatarImageBlob\": \"" + innkeeper.getAvatarImageBlob().toString() + "\", "; 
 				jsonString += "\"avatarImageBlobContentType\": \"" + formatString(innkeeper.getAvatarImageBlobContentType()) + "\", ";
 				jsonString += "\"avatarTextBlob\": \"" + formatString(innkeeper.getAvatarTextBlob()) + "\", "; 
 				jsonString += "\"freshman\": \"" + innkeeper.getFreshman() + "\", "; 
