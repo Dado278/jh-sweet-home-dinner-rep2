@@ -145,11 +145,15 @@ public class InnkeeperResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of innkeepers in body.
      */
     @GetMapping("/innkeepers")
-    public ResponseEntity<List<Innkeeper>> getAllInnkeepers(Pageable pageable) {
+    public ResponseEntity<String> getAllInnkeepers(Pageable pageable) {
+//    public ResponseEntity<List<Innkeeper>> getAllInnkeepers(Pageable pageable) {
         log.debug("REST request to get a page of Innkeepers");
         Page<Innkeeper> page = innkeeperService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        List<Innkeeper> body = page.getContent();
+        String bodyNamed = "{innkeepers:" + body + "}";
+        return ResponseEntity.ok().headers(headers).body(bodyNamed);
+//        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     /**
