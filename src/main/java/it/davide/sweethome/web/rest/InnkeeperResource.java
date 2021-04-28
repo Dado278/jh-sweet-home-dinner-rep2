@@ -2,8 +2,9 @@ package it.davide.sweethome.web.rest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -156,14 +157,16 @@ public class InnkeeperResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of innkeepers in body.
      */
     @GetMapping("/innkeepers")
-    public ResponseEntity<String> getAllInnkeepers(Pageable pageable) {
+    public ResponseEntity<Map<String, List<Innkeeper>>> getAllInnkeepers(Pageable pageable) {
 //    public ResponseEntity<List<Innkeeper>> getAllInnkeepers(Pageable pageable) {
         log.debug("REST request to get a page of Innkeepers");
         Page<Innkeeper> page = innkeeperService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-
-        String bodyNamed = creaJSONInnkeeper(page.getContent());
-        return ResponseEntity.ok().headers(headers).body(bodyNamed);
+        
+        // https://stackoverflow.com/questions/38186891/spring-web-mvc-json-jackson-key-name-for-array-of-objects-named-array
+        Map<String, List<Innkeeper>> map = new HashMap<String, List<Innkeeper>>();
+        map.put("innkeepers", page.getContent());
+        return ResponseEntity.ok().headers(headers).body(map);
         
 //        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -197,52 +200,5 @@ public class InnkeeperResource {
             .build();
     }
     
-    
-    private String creaJSONInnkeeper(List<Innkeeper> innkeeperList) {
-		
-		String jsonString = " ";
-		
-		jsonString += "{\""+"innkeepers"+"\": [";
-		// ciclo per ogni elemento {...}, {...}, ...
-		if ( innkeeperList!=null ) {
-
-			for (Iterator<Innkeeper> iter = innkeeperList.iterator(); iter.hasNext();) {
-				Innkeeper innkeeper = iter.next();
-				jsonString += " { ";
-				jsonString += "\"id\": \"" + innkeeper.getId() + "\", ";
-				jsonString += "\"createDate\": \"" + innkeeper.getCreateDate().toString() + "\", "; 
-				jsonString += "\"updateDae\": \"" + innkeeper.getUpdateDate().toString() + "\", "; 
-				jsonString += "\"nickname\": \"" + formatString(innkeeper.getNickname()) + "\", "; 
-				jsonString += "\"avatarImageBlob\": \"" + innkeeper.getAvatarImageBlob().toString() + "\", "; 
-				jsonString += "\"avatarImageBlobContentType\": \"" + formatString(innkeeper.getAvatarImageBlobContentType()) + "\", ";
-				jsonString += "\"avatarTextBlob\": \"" + formatString(innkeeper.getAvatarTextBlob()) + "\", "; 
-				jsonString += "\"freshman\": \"" + innkeeper.getFreshman() + "\", "; 
-				jsonString += "\"phoneNumber\": \"" + formatString(innkeeper.getPhoneNumber()) + "\", ";
-				jsonString += "\"email\": \"" + formatString(innkeeper.getEmail()) + "\", ";
-				jsonString += "\"slogan\": \"" + formatString(innkeeper.getSlogan()) + "\", "; 
-				jsonString += "\"description\": \"" + formatString(innkeeper.getDescription()) + "\", ";
-				jsonString += "\"latitude\": \"" + formatString(innkeeper.getLatitude()) + "\", "; 
-				jsonString += "\"longitude\": \"" + formatString(innkeeper.getLongitude()) + "\", ";
-				jsonString += "\"address\": \"" + formatString(innkeeper.getAddress()) + "\", ";
-				jsonString += "\"gender\": \"" + formatString(innkeeper.getGender().name()) + "\", "; 
-				jsonString += "\"services\": \"" + formatString(innkeeper.getServices()) + "\", ";
-				jsonString += "\"homepage\": \"" + formatString(innkeeper.getHomePage()) + "\", ";
-				jsonString += "\"internalUser\": \"" + formatString("") + "\", ";
-				jsonString += "\"sharedDinners\": \"" + formatString("") + "\" ";
-				jsonString += " } ";
-				if ( iter.hasNext() ) {
-					jsonString += " , ";
-				}
-			}
-		}
-		jsonString += " ] } ";
-
-		return jsonString;
-	 }
-    
-    private String formatString(String stringa) {
-
-		return stringa!=null?stringa:"";
-	}
     
 }
