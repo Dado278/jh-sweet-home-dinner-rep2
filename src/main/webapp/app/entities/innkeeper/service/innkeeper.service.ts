@@ -11,7 +11,7 @@ import { IInnkeeper, getInnkeeperIdentifier } from '../innkeeper.model';
 
 export type EntityResponseType = HttpResponse<IInnkeeper>;
 export type EntityArrayResponseType = HttpResponse<IInnkeeper[]>;
-//export type EntityArrayResponseTypeNamed = HttpResponse<Map<string,IInnkeeper[]>>;
+export type EntityArrayResponseTypeNamed = HttpResponse<Map<string,IInnkeeper[]>>;
 
 @Injectable({ providedIn: 'root' })
 export class InnkeeperService {
@@ -49,9 +49,9 @@ export class InnkeeperService {
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
     return this.http
-      .get<IInnkeeper[]>(this.resourceUrl, { params: options, observe: 'response' })
-      //.get<Map<string,IInnkeeper[]>>(this.resourceUrl, { params: options, observe: 'response' })
-	  //.pipe(map((resNamed: EntityArrayResponseTypeNamed) => resNamed.get("innkeepers")))
+      //.get<IInnkeeper[]>(this.resourceUrl, { params: options, observe: 'response' })
+      .get<Map<string,IInnkeeper[]>>(this.resourceUrl, { params: options, observe: 'response' })
+	    .pipe(map((resNamed: EntityArrayResponseTypeNamed) => this.convertDateArrayFromMap(resNamed)))
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
@@ -102,5 +102,15 @@ export class InnkeeperService {
       });
     }
     return res;
+  }
+
+  protected convertDateArrayFromMap(resNamed: EntityArrayResponseTypeNamed): EntityArrayResponseType {
+    let namedMap : Map<string,IInnkeeper[]>;
+    let arrayNotNamed : EntityArrayResponseType;
+    if (resNamed.body) {
+      namedMap = resNamed.body;
+      arrayNotNamed = namedMap.get("innkeepers");
+    }
+    return arrayNotNamed;
   }
 }
