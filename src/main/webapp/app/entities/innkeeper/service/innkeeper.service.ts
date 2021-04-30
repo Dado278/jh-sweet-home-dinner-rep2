@@ -8,10 +8,11 @@ import { isPresent } from 'app/core/util/operators';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { createRequestOption } from 'app/core/request/request-util';
 import { IInnkeeper, getInnkeeperIdentifier } from '../innkeeper.model';
+// import { Console } from 'node:console';
 
 export type EntityResponseType = HttpResponse<IInnkeeper>;
 export type EntityArrayResponseType = HttpResponse<IInnkeeper[]>;
-export type EntityArrayResponseTypeNamed = HttpResponse<Map<string,IInnkeeper[]>>;
+// export type EntityArrayResponseTypeNamed = HttpResponse<Map<string,IInnkeeper[]>>;
 
 @Injectable({ providedIn: 'root' })
 export class InnkeeperService {
@@ -48,11 +49,13 @@ export class InnkeeperService {
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
-    return this.http
-      //.get<IInnkeeper[]>(this.resourceUrl, { params: options, observe: 'response' })
-      .get<Map<string,IInnkeeper[]>>(this.resourceUrl, { params: options, observe: 'response' })
-	    .pipe(map((resNamed: EntityArrayResponseTypeNamed) => this.convertDateArrayFromMap(resNamed)))
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+    return (
+      this.http
+        .get<IInnkeeper[]>(this.resourceUrl, { params: options, observe: 'response' })
+        // .get<Map<string,IInnkeeper[]>>(this.resourceUrl, { params: options, observe: 'response' })
+        // .pipe(map((resNamed: EntityArrayResponseTypeNamed) => this.convertDateArrayFromMap(resNamed) ))
+        .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)))
+    );
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
@@ -95,22 +98,27 @@ export class InnkeeperService {
   }
 
   protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
+    // console.log(res.body);
     if (res.body) {
       res.body.forEach((innkeeper: IInnkeeper) => {
         innkeeper.createDate = innkeeper.createDate ? dayjs(innkeeper.createDate) : undefined;
         innkeeper.updateDate = innkeeper.updateDate ? dayjs(innkeeper.updateDate) : undefined;
       });
     }
+    // console.log(res);
     return res;
   }
 
+  /*
   protected convertDateArrayFromMap(resNamed: EntityArrayResponseTypeNamed): EntityArrayResponseType {
-    let namedMap : Map<string,IInnkeeper[]>;
-    let arrayNotNamed : EntityArrayResponseType;
+    console.log(resNamed);
+    let arrayNotNamed = new HttpResponse<IInnkeeper[]>();
+    console.log(resNamed.body);
     if (resNamed.body) {
-      namedMap = resNamed.body;
-      arrayNotNamed = namedMap.get("innkeepers");
+      arrayNotNamed = resNamed.body.json()['innkeepers'];
     }
+    console.log(arrayNotNamed);
     return arrayNotNamed;
   }
+  */
 }
