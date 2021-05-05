@@ -1,18 +1,17 @@
+/* eslint-disable no-console */
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import * as dayjs from 'dayjs';
 
 import { isPresent } from 'app/core/util/operators';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
 import { createRequestOption } from 'app/core/request/request-util';
-import { IInnkeeper, getInnkeeperIdentifier } from '../innkeeper.model';
-// import { Console } from 'node:console';
+import { IInnkeeper, getInnkeeperIdentifier, Innkeeper } from '../innkeeper.model';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export type EntityResponseType = HttpResponse<IInnkeeper>;
 export type EntityArrayResponseType = HttpResponse<IInnkeeper[]>;
-// export type EntityArrayResponseTypeNamed = HttpResponse<Map<string,IInnkeeper[]>>;
 
 @Injectable({ providedIn: 'root' })
 export class InnkeeperService {
@@ -49,13 +48,11 @@ export class InnkeeperService {
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
-    return (
-      this.http
-        .get<IInnkeeper[]>(this.resourceUrl, { params: options, observe: 'response' })
-        // .get<Map<string,IInnkeeper[]>>(this.resourceUrl, { params: options, observe: 'response' })
-        // .pipe(map((resNamed: EntityArrayResponseTypeNamed) => this.convertDateArrayFromMap(resNamed) ))
-        .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)))
-    );
+    console.log('Chiamata gelAllInkeepers');
+    return this.http
+      .get<IInnkeeper[]>(this.resourceUrl, { params: options, observe: 'response' })
+      .pipe(map((resNamed: EntityArrayResponseType) => this.convertJsonArrayFromJsonNamed(resNamed)))
+      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
@@ -98,27 +95,44 @@ export class InnkeeperService {
   }
 
   protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
-    // console.log(res.body);
+    // console.log('init convertDateArrayFromServer');
+    // console.log('res: ' + JSON.stringify(res.body));
+    console.log(res);
     if (res.body) {
       res.body.forEach((innkeeper: IInnkeeper) => {
         innkeeper.createDate = innkeeper.createDate ? dayjs(innkeeper.createDate) : undefined;
         innkeeper.updateDate = innkeeper.updateDate ? dayjs(innkeeper.updateDate) : undefined;
       });
     }
-    // console.log(res);
+    console.log('end convertDateArrayFromServer');
+    // console.log('res: ' + JSON.stringify(res.body));
+    console.log(res);
     return res;
   }
 
-  /*
-  protected convertDateArrayFromMap(resNamed: EntityArrayResponseTypeNamed): EntityArrayResponseType {
+  protected convertJsonArrayFromJsonNamed(resNamed: EntityArrayResponseType): EntityArrayResponseType {
+    // console.log('init convertDateArrayFromMap');
+    // console.log('resNamed: ' + JSON.stringify(resNamed.body));
     console.log(resNamed);
-    let arrayNotNamed = new HttpResponse<IInnkeeper[]>();
-    console.log(resNamed.body);
-    if (resNamed.body) {
-      arrayNotNamed = resNamed.body.json()['innkeepers'];
-    }
-    console.log(arrayNotNamed);
-    return arrayNotNamed;
+    // console.log(resNamed.body);
+    let bodyString = JSON.stringify(resNamed.body);
+    // console.log(bodyString);
+    bodyString = bodyString.replace('{"innkeepers":', '');
+    bodyString = bodyString.replace(']}', ']');
+    // console.log(bodyString);
+    const bodyArray: Innkeeper[] = JSON.parse(bodyString);
+    // console.log(bodyArray);
+    // console.log('create new response');
+    const resArray = new HttpResponse<IInnkeeper[]>({
+      body: bodyArray,
+      headers: resNamed.headers,
+      status: resNamed.status,
+      statusText: resNamed.statusText,
+      url: resNamed.url ? resNamed.url : undefined,
+    });
+    console.log('end convertDateArrayFromMap');
+    // console.log('resArray: ' + JSON.stringify(resArray.body));
+    console.log(resArray);
+    return resArray;
   }
-  */
 }
